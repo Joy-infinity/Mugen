@@ -37,6 +37,8 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--no-trap-ai-agents", action="store_true",
                    help="don't trap self-identified AI agents on sight; "
                         "let the other signals decide instead")
+    p.add_argument("--log-file", default=None,
+                   help="append JSON logs to this file (for the dashboard)")
     args = p.parse_args(argv)
 
     detector = Detector(
@@ -47,6 +49,11 @@ def main(argv: list[str] | None = None) -> int:
         trap_ai_agents=not args.no_trap_ai_agents,
         allow_ai_agents=tuple(args.allow_ai_agent),
     )
+    log_stream = sys.stdout
+    if args.log_file:
+        # Line-buffered append so the dashboard can tail it live.
+        log_stream = open(args.log_file, "a", buffering=1, encoding="utf-8")
+
     cfg = Config(
         host=args.host,
         port=args.port,
@@ -54,8 +61,13 @@ def main(argv: list[str] | None = None) -> int:
         drip_bytes=args.drip_bytes,
         max_concurrent_drips=args.max_drips,
         detector=detector,
+        log_stream=log_stream,
     )
-    serve(cfg)
+    try:
+        serve(cfg)
+    finally:
+        if log_stream is not sys.stdout:
+            log_stream.close()
     return 0
 
 
