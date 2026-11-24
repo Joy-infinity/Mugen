@@ -147,6 +147,7 @@ keeps the void spinning. 🌀
 - **Solana (SOL, and USDT/USDC on Solana):**
   `5RaSo1uZ1RyZaSq5FcMnzRFyC2KpDuRnJpVURfA8rnCV`
 - **BTC:** `bc1qhecrn9glsp79scjvaxjp2cx2adn84y0w3pwu6n`
+- **TRON (TRX, and USDT-TRC20):** `TBorbUQYyWAF3625FXbQZkUDeM3sCtbbwn`
 
 Thank you for keeping the bots lost. ∞
 
