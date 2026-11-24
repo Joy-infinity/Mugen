@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.eggs/
+
+# Virtual envs
+.venv/
+venv/
+env/
+
+# Logs / local data
+*.log
+mugen.log
+
+# Secrets -- Mugen itself has none, but never let a contributor leak one
+.env
+*.pem
+*.key
+secrets.*
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
