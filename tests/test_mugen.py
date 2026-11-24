@@ -10,6 +10,10 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+import json                                     # noqa: E402
+import tempfile                                  # noqa: E402
+
+from mugen.dashboard import aggregate            # noqa: E402
 from mugen.detector import Detector            # noqa: E402
 from mugen.labyrinth import (                   # noqa: E402
     generate_json_page, generate_page, is_trap_path,
@@ -95,6 +99,41 @@ def test_labyrinth_has_links_and_trap():
     assert "<a href=" in page
     assert "/trap/" in page          # a honeypot link is embedded
     assert is_trap_path("/trap/foo") and not is_trap_path("/real")
+
+
+def _write_log(lines):
+    f = tempfile.NamedTemporaryFile("w", suffix=".log", delete=False, encoding="utf-8")
+    for rec in lines:
+        f.write(json.dumps(rec) + "\n")
+    f.write("{ this is a broken line\n")  # must be skipped, not crash
+    f.close()
+    return f.name
+
+
+def test_dashboard_aggregates_counts():
+    import time
+    now = time.time()
+    path = _write_log([
+        {"ts": now, "event": "start"},
+        {"ts": now, "event": "trapped", "ip": "1.1.1.1", "path": "/",
+         "score": 6, "reasons": ["automation user-agent"], "ai_agent": "gptbot"},
+        {"ts": now, "event": "trapped", "ip": "1.1.1.1", "path": "/x",
+         "score": 7, "reasons": ["automation user-agent"]},
+        {"ts": now, "event": "pass", "ip": "2.2.2.2", "path": "/", "score": 0},
+    ])
+    s = aggregate(path)
+    assert s["total"] == 3 and s["trapped"] == 2 and s["passed"] == 1
+    assert s["trap_rate"] == round(100 * 2 / 3, 1)
+    assert s["top_ips"][0] == {"label": "1.1.1.1", "count": 2}
+    assert s["ai_agents"][0] == {"label": "gptbot", "count": 1}
+    assert s["reasons"][0]["label"] == "automation user-agent"
+    assert len(s["timeline"]) == 30
+    assert s["recent"][0]["event"] == "pass"  # most recent first
+
+
+def test_dashboard_missing_file_is_safe():
+    s = aggregate("/nonexistent/path/mugen.log")
+    assert s["total"] == 0 and s["trapped"] == 0
 
 
 def _run_all():
