@@ -10,6 +10,10 @@
 > This tool does the same thing to hostile bots: they approach your real site
 > but never arrive, stuck crawling an endless maze instead.
 
+<p align="center">
+  <img src="assets/demo.gif" alt="Mugen in action: a human passes through, a bot is trapped in the maze" width="720">
+</p>
+
 Mugen is a defensive **tarpit**. It detects automated / AI-driven traffic —
 scrapers, scanners, and AI agents that hammer or probe your website or server —
 and, instead of serving your real content, feeds them an endless maze of
