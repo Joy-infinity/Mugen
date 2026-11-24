@@ -38,6 +38,7 @@ trap on your property, not a weapon. See [Ethics & legality](#ethics--legality).
 - **Protects real users.** Google, Bing, screen readers, and any IP or AI agent
   you allowlist always pass through untouched.
 - **Logs everything** as JSON so you can block offending IPs at your firewall.
+- **Live dashboard** to watch trapped bots, top IPs, AI agents and trap rate in real time.
 - **Caps its own resource use** so the tarpit can't be turned against you.
 - **Zero dependencies.** Pure Python standard library. Runs anywhere.
 
@@ -66,6 +67,28 @@ In production you point your reverse proxy (nginx, Caddy) at Mugen for paths you
 want protected, or use the middleware below to guard an existing app directly.
 
 ---
+
+## Dashboard — watch the maze work
+
+Mugen ships with a live dashboard. Point the server's log to a file, then run the
+dashboard against it:
+
+```bash
+python3 -m mugen --port 8080 --log-file mugen.log   # run the tarpit, logging to a file
+python3 -m mugen.dashboard --log mugen.log --port 8090   # in another terminal
+```
+
+Open **http://127.0.0.1:8090** and you'll see trapped vs. passed counts, the trap
+rate, a 30-minute timeline, top offending IPs, which AI agents showed up, the top
+reasons visitors were trapped, and a live feed of recent decisions. It refreshes
+on its own and has zero dependencies, same as the rest of Mugen.
+
+<p align="center">
+  <img src="assets/dashboard.png" alt="The Mugen dashboard" width="860">
+</p>
+
+> Want to try it without waiting for real bots? Generate sample data:
+> `python3 examples/generate_sample_log.py > mugen.log`, then run the dashboard.
 
 ## Protect an existing Python site (middleware)
 
